@@ -212,7 +212,10 @@ const puppeteer = require("puppeteer");
 async function updateCache() {
   console.log("🔄 Обновляю кэш цен...");
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"], // 🛡️ Обязательно в Railway
+    });
     const page = await browser.newPage();
 
     await page.goto("https://peek.tg/stats", {
