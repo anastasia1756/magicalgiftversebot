@@ -1,25 +1,11 @@
-// const TelegramBot = require("node-telegram-bot-api");
+const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const { config } = require("dotenv");
 config();
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-// const bot = new TelegramBot(BOT_TOKEN, { polling: true });
-const express = require("express");
-const app = express();
-const TelegramBot = require("node-telegram-bot-api");
-const bot = new TelegramBot(BOT_TOKEN);
-
-const URL = process.env.RENDER_EXTERNAL_URL;
-bot.setWebHook(`${URL}/bot${BOT_TOKEN}`);
-
-app.use(express.json());
-
-app.post(`/bot${BOT_TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
+const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 // 🔁 Ключевые слова → отображаемое имя
 const keywordToGiftName = {
@@ -221,26 +207,20 @@ let cachedPrices = new Map();
 let lastUpdated = null;
 
 // 🔄 Фоновая функция для обновления цен
-// const puppeteer = require("puppeteer");
 const puppeteer = require("puppeteer");
-const chromium = require("@sparticuz/chromium");
 
 async function updateCache() {
   console.log("🔄 Обновляю кэш цен...");
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: chromium.args,
-      executablePath: await chromium.executablePath, // Всегда указываем путь
-    });
-
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
     await page.goto("https://peek.tg/stats", {
       waitUntil: "domcontentloaded",
-      timeout: 30000,
+      timeout: 30000, // ⏳ до 30 секунд на загрузку
     });
 
+    // ⏱️ ждём до 10 секунд появления нужных элементов
     await page.waitForSelector("h3.font-medium.text-white.text-base.truncate", {
       timeout: 10000,
     });
@@ -275,7 +255,7 @@ async function updateCache() {
       console.log(`✅ Цены обновлены: ${cachedPrices.size} подарков`);
     } else {
       console.warn(
-        "⚠️ Получено 0 подарков — возможно, сайт не загрузился корректно."
+        "⚠️ Получено 0 подарков — возможно, сайт не загрузился корректно. Кэш не обновляется."
       );
     }
   } catch (err) {
@@ -332,9 +312,4 @@ bot.on("message", async (msg) => {
   } else {
     bot.sendMessage(chatId, "🙈 Не нашёл цену на этот подарок.");
   }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Webhook-сервер запущен на порту ${PORT}`);
 });
