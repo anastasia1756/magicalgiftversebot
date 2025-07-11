@@ -1,11 +1,25 @@
-const TelegramBot = require("node-telegram-bot-api");
+// const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const { config } = require("dotenv");
 config();
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+// const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+const express = require("express");
+const app = express();
+const TelegramBot = require("node-telegram-bot-api");
+const bot = new TelegramBot(BOT_TOKEN);
+
+const URL = process.env.RENDER_EXTERNAL_URL;
+bot.setWebHook(`${URL}/bot${BOT_TOKEN}`);
+
+app.use(express.json());
+
+app.post(`/bot${BOT_TOKEN}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
 
 // 🔁 Ключевые слова → отображаемое имя
 const keywordToGiftName = {
@@ -316,4 +330,9 @@ bot.on("message", async (msg) => {
   } else {
     bot.sendMessage(chatId, "🙈 Не нашёл цену на этот подарок.");
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Webhook-сервер запущен на порту ${PORT}`);
 });
