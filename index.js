@@ -231,7 +231,7 @@ async function updateCache() {
     const browser = await puppeteer.launch({
       headless: true,
       args: chromium.args,
-      executablePath: await chromium.executablePath(), // Всегда указываем путь
+      executablePath: await chromium.executablePath, // Всегда указываем путь
     });
 
     const page = await browser.newPage();
