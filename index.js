@@ -184,7 +184,9 @@ async function getGiftPriceByName(giftName) {
   }
 }
 
+// 🤖 Бот слушает
 bot.on("message", async (msg) => {
+  console.log("📩 Получено сообщение:", msg);
   const chatId = msg.chat.id;
   const text = msg.text?.toLowerCase().trim();
   if (!text) return;
@@ -194,27 +196,26 @@ bot.on("message", async (msg) => {
     return;
   }
 
+  // Ищем самое точное совпадение
+  let matchedName = null;
   let matchedKeyword = null;
-  let matchedGift = null;
 
   for (const [keyword, name] of Object.entries(keywordToGiftName)) {
-    const regex = new RegExp(`\\b${keyword}\\b`, "i");
-    if (regex.test(text)) {
+    if (text.includes(keyword.toLowerCase())) {
       if (!matchedKeyword || keyword.length > matchedKeyword.length) {
         matchedKeyword = keyword;
-        matchedGift = name;
+        matchedName = name;
       }
     }
   }
 
-  if (!matchedGift) {
-    bot.sendMessage(chatId, "🙈 Не знаю такого подарка.");
+  if (!matchedName) {
     return;
   }
 
-  const price = await getGiftPriceByName(matchedGift);
-  if (price) {
-    bot.sendMessage(chatId, `🎁 ${price}`);
+  const priceInfo = await getGiftPriceByName(matchedName);
+  if (priceInfo) {
+    bot.sendMessage(chatId, `🎁 ${priceInfo}`);
   } else {
     bot.sendMessage(chatId, "🙈 Не нашёл цену на этот подарок.");
   }
