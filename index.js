@@ -222,16 +222,16 @@ let lastUpdated = null;
 
 // 🔄 Фоновая функция для обновления цен
 // const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer");
 const chromium = require("@sparticuz/chromium");
-const puppeteer = require("puppeteer-core");
 
 async function updateCache() {
   console.log("🔄 Обновляю кэш цен...");
   try {
     const browser = await puppeteer.launch({
+      headless: true,
       args: chromium.args,
-      executablePath: chromium.executablePath,
-      headless: chromium.headless,
+      executablePath: await chromium.executablePath(), // Всегда указываем путь
     });
 
     const page = await browser.newPage();
@@ -258,6 +258,7 @@ async function updateCache() {
           "span.text-lg.font-semibold.text-white"
         );
         const price = priceEl?.textContent.trim();
+
         if (title && price) {
           result.push([title.toLowerCase(), `${title} — ${price} TON`]);
         }

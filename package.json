@@ -10,12 +10,6 @@
   "engines": {
     "node": ">=18"
   },
-  "puppeteer": {
-    "args": [
-      "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ]
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,12 +17,12 @@
     "@sparticuz/chromium": "^138.0.1",
     "axios": "^1.10.0",
     "cheerio": "^1.1.0",
+    "chrome-aws-lambda": "^10.1.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "input": "^1.0.1",
     "node-telegram-bot-api": "^0.66.0",
-    "puppeteer": "^24.12.1",
-    "puppeteer-core": "^24.12.1",
+    "puppeteer": "^24.0.0",
     "telegram": "^2.26.22"
   },
   "type": "commonjs"
