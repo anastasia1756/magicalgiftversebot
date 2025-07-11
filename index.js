@@ -221,24 +221,26 @@ let cachedPrices = new Map();
 let lastUpdated = null;
 
 // 🔄 Фоновая функция для обновления цен
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 async function updateCache() {
   console.log("🔄 Обновляю кэш цен...");
   try {
-    // const browser = await puppeteer.launch({ headless: true });
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
     });
+
     const page = await browser.newPage();
 
     await page.goto("https://peek.tg/stats", {
       waitUntil: "domcontentloaded",
-      timeout: 30000, // ⏳ до 30 секунд на загрузку
+      timeout: 30000,
     });
 
-    // ⏱️ ждём до 10 секунд появления нужных элементов
     await page.waitForSelector("h3.font-medium.text-white.text-base.truncate", {
       timeout: 10000,
     });
@@ -256,7 +258,6 @@ async function updateCache() {
           "span.text-lg.font-semibold.text-white"
         );
         const price = priceEl?.textContent.trim();
-
         if (title && price) {
           result.push([title.toLowerCase(), `${title} — ${price} TON`]);
         }
@@ -273,7 +274,7 @@ async function updateCache() {
       console.log(`✅ Цены обновлены: ${cachedPrices.size} подарков`);
     } else {
       console.warn(
-        "⚠️ Получено 0 подарков — возможно, сайт не загрузился корректно. Кэш не обновляется."
+        "⚠️ Получено 0 подарков — возможно, сайт не загрузился корректно."
       );
     }
   } catch (err) {
